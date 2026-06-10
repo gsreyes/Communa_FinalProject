@@ -6,7 +6,6 @@ Communa is built with:
 - PHP 8.^.
 - Blade
 - Tailwind CSS
-- HitPay Sandbox
 - XAMPP
 
 ## Setup
