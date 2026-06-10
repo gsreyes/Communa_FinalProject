@@ -45,4 +45,6 @@ Route::middleware('auth')->group(function () {
 // HitPay Webhook (no auth required)
 Route::post('/webhook/hitpay', [PaymentController::class, 'webhook'])->name('payments.webhook');
 
+require __DIR__.'/auth.php';
+
 
