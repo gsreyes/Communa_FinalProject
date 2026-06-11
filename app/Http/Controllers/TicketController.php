@@ -150,7 +150,7 @@ class TicketController extends Controller
             ->with('success', 'Ticket updated successfully.');
     }
 
-   // Delete a ticket (admin only or resident for own pending tickets)
+    // Delete a ticket (admin only or resident for own pending tickets)
     public function destroy(Ticket $ticket)
     {
         $this->authorize('delete', $ticket);

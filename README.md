@@ -19,6 +19,7 @@ Communa is built with:
 6. In your terminal, run: 
    - php artisan key:generate  
    - php artisan migrate
+   - php artisan db:seed (to login as an admin)
    - npm install
    - npm run build
    - php artisan serve
