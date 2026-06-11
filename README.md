@@ -14,7 +14,7 @@ Communa is built with:
 1. Clone the repository 
 2. In your terminal, go the directory of the cloned repository | cd "path"
 3. Install PHP dependencies | composer install
-4. Setup your environment file using the .env.example file
+4. Setup your environment file referencing the .env.example file
 5. Update the database credentials in your .env file
 6. In your terminal, run: 
    - php artisan key:generate  
