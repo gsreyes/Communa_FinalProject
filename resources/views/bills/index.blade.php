@@ -15,10 +15,6 @@
                 </div>
 
                 <!-- Summary Cards -->
-                @php
-                    $stats = app('App\Http\Controllers\BillController')->getStats();
-                @endphp
-                
                 @if($stats)
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                         <div class="bg-blue-50 p-4 rounded-lg">
@@ -27,15 +23,15 @@
                         </div>
                         <div class="bg-green-50 p-4 rounded-lg">
                             <p class="text-sm text-gray-600">Paid Amount</p>
-                            <p class="text-2xl font-bold text-green-600">₱{{ number_format($stats['paid'], 2) }}</p>
+                            <p class="text-2xl font-bold text-green-600">PHP {{ number_format($stats['paid'], 2) }}</p>
                         </div>
                         <div class="bg-red-50 p-4 rounded-lg">
                             <p class="text-sm text-gray-600">Unpaid Amount</p>
-                            <p class="text-2xl font-bold text-red-600">₱{{ number_format($stats['unpaid'], 2) }}</p>
+                            <p class="text-2xl font-bold text-red-600">PHP {{ number_format($stats['unpaid'], 2) }}</p>
                         </div>
                         <div class="bg-orange-50 p-4 rounded-lg">
                             <p class="text-sm text-gray-600">Overdue Amount</p>
-                            <p class="text-2xl font-bold text-orange-600">₱{{ number_format($stats['overdue'], 2) }}</p>
+                            <p class="text-2xl font-bold text-orange-600">PHP {{ number_format($stats['overdue'], 2) }}</p>
                         </div>
                     </div>
                 @endif
@@ -64,7 +60,7 @@
                                             {{ $bill->billType->name ?? 'N/A' }}
                                         </td>
                                         <td class="px-6 py-4 text-sm font-semibold text-gray-900">
-                                            ₱{{ number_format($bill->amount, 2) }}
+                                            PHP {{ number_format($bill->amount, 2) }}
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-900">
                                             {{ $bill->due_date->format('M d, Y') }}

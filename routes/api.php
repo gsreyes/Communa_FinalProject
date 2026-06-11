@@ -11,7 +11,9 @@ use App\Http\Controllers\Api\TicketController;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-Route::apiResource('users', UserController::class);
-Route::apiResource('units', UnitController::class);
-Route::apiResource('bills', BillController::class);
-Route::apiResource('tickets', TicketController::class);
+Route::name('api.')->group(function () {
+    Route::apiResource('users', UserController::class);
+    Route::apiResource('units', UnitController::class);
+    Route::apiResource('bills', BillController::class);
+    Route::apiResource('tickets', TicketController::class);
+});

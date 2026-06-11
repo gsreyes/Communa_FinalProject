@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Ticket;
+use App\Models\TicketCategory;
+use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
@@ -13,7 +14,7 @@ class TicketController extends Controller
      */
     public function index()
     {
-        return response()->json(Ticket::all(), 200);
+        return response()->json(Ticket::with(['user', 'unit', 'category', 'assignedAdmin'])->latest()->paginate(20));
     }
 
     /**
@@ -22,60 +23,76 @@ class TicketController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'type' => 'required|string',
-            'description' => 'required|string',
+            'user_id' => 'required|exists:users,id',
+            'unit_id' => 'nullable|exists:units,id',
+            'ticket_category_id' => 'required|exists:ticket_categories,id',
+            'description' => 'required|string|min:10|max:5000',
             'attachment' => 'nullable|string',
-            'status' => 'required|string|in:open,closed,pending',
+            'status' => 'nullable|in:Pending,Resolved,Rejected',
             'admin_response' => 'nullable|string',
+            'assigned_to' => 'nullable|exists:users,id',
         ]);
 
+        $category = TicketCategory::findOrFail($validatedData['ticket_category_id']);
+        $validatedData['type'] = ucfirst($category->type);
+        $validatedData['status'] = $validatedData['status'] ?? 'Pending';
+
         $ticket = Ticket::create($validatedData);
+
         return response()->json([
             'message' => 'Ticket created successfully',
-            'data' => $ticket
+            'data' => $ticket->load(['user', 'unit', 'category', 'assignedAdmin']),
         ], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Ticket $ticket)
     {
-        $ticket = Ticket::findOrFail($id);
-        return response()->json($ticket, 200);
+        return response()->json($ticket->load(['user', 'unit', 'category', 'assignedAdmin']));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Ticket $ticket)
     {
-        $ticket = Ticket::findOrFail($id);
-
         $validatedData = $request->validate([
-            'type' => 'sometimes|required|string',
-            'description' => 'sometimes|required|string',
+            'ticket_category_id' => 'sometimes|required|exists:ticket_categories,id',
+            'description' => 'sometimes|required|string|min:10|max:5000',
             'attachment' => 'nullable|string',
-            'status' => 'sometimes|required|string|in:open,closed,pending',
-            'admin_response' => 'nullable|string',
+            'status' => 'sometimes|required|in:Pending,Resolved,Rejected',
+            'admin_response' => 'nullable|string|max:5000',
+            'assigned_to' => 'nullable|exists:users,id',
         ]);
 
+        if (isset($validatedData['ticket_category_id'])) {
+            $category = TicketCategory::findOrFail($validatedData['ticket_category_id']);
+            $validatedData['type'] = ucfirst($category->type);
+        }
+
+        if (isset($validatedData['status']) && $validatedData['status'] !== 'Pending') {
+            $validatedData['resolved_at'] = now();
+        }
+
         $ticket->update($validatedData);
+
         return response()->json([
             'message' => 'Ticket updated successfully',
-            'data' => $ticket
-        ], 200);
+            'data' => $ticket->fresh()->load(['user', 'unit', 'category', 'assignedAdmin']),
+        ]);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Ticket $ticket)
     {
-        $ticket = Ticket::findOrFail($id);
         $ticket->delete();
+
         return response()->json([
-            'message' => 'Ticket deleted successfully'
-        ], 200);
+            'message' => 'Ticket deleted successfully',
+        ]);
     }
 }

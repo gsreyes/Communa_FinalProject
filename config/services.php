@@ -37,7 +37,7 @@ return [
 
     'hitpay' => [
         'api_key' => env('HITPAY_API_KEY'),
-        'salt' => env('HITPAY_WEBHOOK_SALT'),
+        'api_salt' => env('HITPAY_API_SALT'),
         'sandbox' => env('HITPAY_SANDBOX', true),
     ],
 

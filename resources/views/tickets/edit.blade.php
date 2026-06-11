@@ -49,7 +49,7 @@
                         <label for="admin_response" class="block text-sm font-medium text-gray-700 mb-2">
                             Response
                         </label>
-                        <textarea name="admin_response" id="admin_response" rows="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-transparent" required>{{ $ticket->admin_response }}</textarea>
+                        <textarea name="admin_response" id="admin_response" rows="5" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-transparent">{{ $ticket->admin_response }}</textarea>
                         @error('admin_response')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('ticket_categories', function (Blueprint $table) {
             $table->id();
             $table->enum('type', ['concern', 'request']);
-            $table->string('name'); // e.g., "Gate Pass", "Visitor Pass", "Work Permit", "CCTV Request", "Complaint"
+            $table->string('name'); // Gate Pass, Visitor Pass, Work Permit, CCTV Request, Complaint
             $table->text('description')->nullable();
             $table->string('code')->unique();
             $table->boolean('is_active')->default(true);

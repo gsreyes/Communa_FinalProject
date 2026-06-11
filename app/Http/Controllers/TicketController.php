@@ -4,61 +4,87 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use App\Models\TicketCategory;
-use App\Models\Unit;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TicketController extends Controller
 {
     //  Display a listing of tickets for resident or all tickets for admin
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+        $status = $request->query('status');
 
         if ($user->isAdmin()) {
             // Admin sees all tickets
-            $tickets = Ticket::with(['user', 'unit', 'category', 'assignedAdmin'])
-                ->latest()
-                ->paginate(15);
+            $query = Ticket::with(['user', 'unit', 'category', 'assignedAdmin']);
         } else {
             // Resident sees only their tickets
-            $tickets = $user->tickets()
-                ->with(['unit', 'category', 'assignedAdmin'])
-                ->latest()
-                ->paginate(15);
+            $query = $user->tickets()
+                ->with(['unit', 'category', 'assignedAdmin']);
         }
 
-        return view('tickets.index', compact('tickets'));
+        if (in_array($status, ['Pending', 'Resolved', 'Rejected'], true)) {
+            $query->where('status', $status);
+        }
+
+        $tickets = $query->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('tickets.index', compact('tickets', 'status'));
     }
 
     // Show the form for creating a new ticket
     public function create()
     {
+        $this->authorize('create', Ticket::class);
+
         $categories = TicketCategory::where('is_active', true)
             ->orderBy('type')
             ->orderBy('name')
             ->get();
 
-        $units = Auth::user()->units()
+        $unit = Auth::user()->units()
             ->wherePivot('is_active', true)
-            ->get();
+            ->orderBy('units.unit_number')
+            ->first();
 
-        return view('tickets.create', compact('categories', 'units'));
+        if (! $unit) {
+            return redirect()->route('tickets.index')
+                ->with('error', 'Your account must be assigned to a unit before you can submit a ticket.');
+        }
+
+        return view('tickets.create', compact('categories', 'unit'));
     }
 
     // Store a newly created ticket in database
     public function store(Request $request)
     {
+        $this->authorize('create', Ticket::class);
+
+        $unit = Auth::user()->units()
+            ->wherePivot('is_active', true)
+            ->orderBy('units.unit_number')
+            ->first();
+
+        if (! $unit) {
+            return redirect()->route('tickets.index')
+                ->with('error', 'Your account must be assigned to a unit before you can submit a ticket.');
+        }
+
         $validated = $request->validate([
             'ticket_category_id' => 'required|exists:ticket_categories,id',
-            'unit_id' => 'required|exists:units,id',
             'description' => 'required|string|min:10|max:5000',
             'attachment' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx|max:5120',
         ]);
 
         $category = TicketCategory::find($validated['ticket_category_id']);
-        $validated['type'] = $category->type;
+        // Map lowercase category type to capitalized ticket type enum
+        $validated['type'] = ucfirst($category->type);
         $validated['user_id'] = Auth::id();
+        $validated['unit_id'] = $unit->id;
 
         // Handle file upload
         if ($request->hasFile('attachment')) {
@@ -78,8 +104,11 @@ class TicketController extends Controller
         $this->authorize('view', $ticket);
 
         $ticket->load(['user', 'unit', 'category', 'assignedAdmin']);
+        $admins = Auth::user()->isAdmin()
+            ? User::where('role', 'admin')->orderBy('name')->get()
+            : collect();
 
-        return view('tickets.show', compact('ticket'));
+        return view('tickets.show', compact('ticket', 'admins'));
     }
 
     // Show the form for editing the ticket (admin only)
@@ -92,8 +121,7 @@ class TicketController extends Controller
             ->orderBy('name')
             ->get();
 
-        $admins = \App\Models\User::where('role', 'admin')
-            ->where('id', '!=', Auth::id())
+        $admins = User::where('role', 'admin')
             ->get();
 
         return view('tickets.edit', compact('ticket', 'categories', 'admins'));
@@ -106,12 +134,14 @@ class TicketController extends Controller
 
         $validated = $request->validate([
             'status' => 'required|in:Pending,Resolved,Rejected',
-            'admin_response' => 'required_if:status,Resolved,Rejected|string|min:5|max:5000',
+            'admin_response' => 'nullable|string|max:5000',
             'assigned_to' => 'nullable|exists:users,id',
         ]);
 
         if ($validated['status'] !== 'Pending') {
             $validated['resolved_at'] = now();
+        } else {
+            $validated['resolved_at'] = null;
         }
 
         $ticket->update($validated);

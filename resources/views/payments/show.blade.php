@@ -38,7 +38,7 @@
                     </div>
                     <div>
                         <p class="text-sm text-gray-600">Amount Paid</p>
-                        <p class="text-2xl font-bold text-blue-600">₱{{ number_format($payment->amount, 2) }}</p>
+                        <p class="text-2xl font-bold text-blue-600">PHP {{ number_format($payment->amount, 2) }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-600">Payment Method</p>
@@ -65,11 +65,11 @@
                             </div>
                             <div>
                                 <p class="text-sm text-gray-600">Original Amount</p>
-                                <p class="text-lg font-semibold">₱{{ number_format($payment->bill->amount, 2) }}</p>
+                                <p class="text-lg font-semibold">PHP {{ number_format($payment->bill->amount, 2) }}</p>
                             </div>
                             <div>
                                 <a href="{{ route('bills.show', $payment->bill) }}" class="text-blue-600 hover:text-blue-900 font-semibold">
-                                    View Bill →
+                                    View Bill ->
                                 </a>
                             </div>
                         </div>
@@ -88,7 +88,7 @@
                 @if($payment->status === 'completed' && $payment->paid_at)
                     <div class="mb-8 pb-8 border-b bg-green-50 p-4 rounded-lg">
                         <p class="text-green-800">
-                            <strong>✓ Payment Confirmed</strong><br>
+                            <strong>Payment Confirmed</strong><br>
                             Completed on {{ $payment->paid_at->format('M d, Y H:i A') }}
                         </p>
                     </div>

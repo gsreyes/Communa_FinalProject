@@ -15,16 +15,16 @@
                     <div class="grid grid-cols-2 gap-6">
                         <div>
                             <p class="text-sm text-gray-600">Total Due</p>
-                            <p class="text-3xl font-bold text-blue-600">₱{{ number_format($bill->amount, 2) }}</p>
+                            <p class="text-3xl font-bold text-blue-600">PHP {{ number_format($bill->amount, 2) }}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600">Paid So Far</p>
-                            <p class="text-3xl font-bold text-green-600">₱{{ number_format($bill->paid_amount ?? 0, 2) }}</p>
+                            <p class="text-sm text-gray-600">Total Amount Paid</p>
+                            <p class="text-3xl font-bold text-green-600">PHP {{ number_format($bill->paid_amount ?? 0, 2) }}</p>
                         </div>
                     </div>
                     <div class="mt-4 p-4 bg-gray-50 rounded-lg">
                         <p class="text-sm text-gray-600">Amount to Pay Now</p>
-                        <p class="text-2xl font-semibold text-gray-900">₱{{ number_format($bill->amount - ($bill->paid_amount ?? 0), 2) }}</p>
+                        <p class="text-2xl font-semibold text-gray-900">PHP {{ number_format($bill->amount - ($bill->paid_amount ?? 0), 2) }}</p>
                     </div>
                 </div>
 
@@ -35,11 +35,11 @@
                     <!-- Amount Input -->
                     <div>
                         <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
-                            Payment Amount (₱) <span class="text-red-500">*</span>
+                            Payment Amount (PHP) <span class="text-red-500">*</span>
                         </label>
                         <input type="number" name="amount" id="amount" step="0.01" min="0.01" max="{{ $bill->amount - ($bill->paid_amount ?? 0) }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-transparent" placeholder="0.00" required value="{{ $bill->amount - ($bill->paid_amount ?? 0) }}">
                         <p class="text-xs text-gray-500 mt-1">
-                            Maximum: ₱{{ number_format($bill->amount - ($bill->paid_amount ?? 0), 2) }}
+                            Maximum: PHP {{ number_format($bill->amount - ($bill->paid_amount ?? 0), 2) }}
                         </p>
                         @error('amount')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -50,8 +50,7 @@
                     <div class="bg-blue-50 p-4 rounded-lg">
                         <p class="text-sm text-blue-900">
                             <strong>Payment Information:</strong><br>
-                            You will be redirected to HitPay secure payment gateway. We accept credit cards, debit cards, and bank transfers.
-                            Your transaction is secured with SSL encryption.
+                            You will be redirected to HitPay secure payment gateway.
                         </p>
                     </div>
 

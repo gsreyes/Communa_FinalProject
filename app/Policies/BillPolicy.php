@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Bill;
 use App\Models\User;
 
 class BillPolicy
@@ -18,8 +19,8 @@ class BillPolicy
      */
     public function view(User $user, Bill $bill): bool
     {
-        // Billing staff can view all bills
-        if ($user->isBillingStaff()) {
+        // Admins and billing staff can view all bills.
+        if ($user->isAdmin() || $user->isBillingStaff()) {
             return true;
         }
 
@@ -41,7 +42,7 @@ class BillPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isBillingStaff();
+        return $user->isAdmin() || $user->isBillingStaff();
     }
 
     /**
@@ -49,8 +50,7 @@ class BillPolicy
      */
     public function update(User $user, Bill $bill): bool
     {
-        // Only billing staff can update bills
-        return $user->isBillingStaff();
+        return $user->isAdmin() || $user->isBillingStaff();
     }
 
     /**
@@ -58,7 +58,6 @@ class BillPolicy
      */
     public function delete(User $user, Bill $bill): bool
     {
-        // Only billing staff can delete unpaid bills
-        return $user->isBillingStaff() && $bill->status === 'Unpaid';
+        return ($user->isAdmin() || $user->isBillingStaff()) && $bill->status === 'Unpaid';
     }
 }

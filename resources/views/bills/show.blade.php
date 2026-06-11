@@ -53,15 +53,15 @@
                     <div class="grid grid-cols-3 gap-6">
                         <div class="bg-blue-50 p-4 rounded-lg">
                             <p class="text-sm text-gray-600">Amount Due</p>
-                            <p class="text-2xl font-bold text-blue-600">₱{{ number_format($bill->amount, 2) }}</p>
+                            <p class="text-2xl font-bold text-blue-600">PHP {{ number_format($bill->amount, 2) }}</p>
                         </div>
                         <div class="bg-green-50 p-4 rounded-lg">
                             <p class="text-sm text-gray-600">Amount Paid</p>
-                            <p class="text-2xl font-bold text-green-600">₱{{ number_format($bill->paid_amount ?? 0, 2) }}</p>
+                            <p class="text-2xl font-bold text-green-600">PHP {{ number_format($bill->paid_amount ?? 0, 2) }}</p>
                         </div>
                         <div class="bg-red-50 p-4 rounded-lg">
                             <p class="text-sm text-gray-600">Balance</p>
-                            <p class="text-2xl font-bold text-red-600">₱{{ number_format($bill->amount - ($bill->paid_amount ?? 0), 2) }}</p>
+                            <p class="text-2xl font-bold text-red-600">PHP {{ number_format($bill->amount - ($bill->paid_amount ?? 0), 2) }}</p>
                         </div>
                     </div>
 
@@ -88,7 +88,7 @@
                             @foreach($bill->payments as $payment)
                                 <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                                     <div>
-                                        <p class="font-semibold">₱{{ number_format($payment->amount, 2) }}</p>
+                                        <p class="font-semibold">PHP {{ number_format($payment->amount, 2) }}</p>
                                         <p class="text-sm text-gray-500">{{ $payment->created_at->format('M d, Y H:i') }}</p>
                                     </div>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium

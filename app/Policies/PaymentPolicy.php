@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Payment;
 use App\Models\User;
 
 class PaymentPolicy
@@ -19,8 +20,8 @@ class PaymentPolicy
      */
     public function view(User $user, Payment $payment): bool
     {
-        // Billing staff can view all payments
-        if ($user->isBillingStaff()) {
+        // Admins and billing staff can view all payments.
+        if ($user->isAdmin() || $user->isBillingStaff()) {
             return true;
         }
 

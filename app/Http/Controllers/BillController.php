@@ -15,8 +15,8 @@ class BillController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->isBillingStaff()) {
-            // Billing staff sees all bills
+        if ($user->isBillingStaff() || $user->isAdmin()) {
+            // Staff and Admins see all bills
             $bills = Bill::with(['user', 'unit', 'billType'])
                 ->latest()
                 ->paginate(20);
@@ -30,7 +30,9 @@ class BillController extends Controller
             abort(403);
         }
 
-        return view('bills.index', compact('bills'));
+        $stats = $this->statsFor($user);
+
+        return view('bills.index', compact('bills', 'stats'));
     }
 
     // Show the form for creating a new bill (billing staff only)
@@ -137,24 +139,22 @@ class BillController extends Controller
     // Get billing statistics (for dashboard)
     public function getStats()
     {
-        $user = Auth::user();
+        return $this->statsFor(Auth::user());
+    }
 
-        if ($user->isBillingStaff()) {
-            return [
-                'total_bills' => Bill::count(),
-                'paid' => Bill::where('status', 'Paid')->sum('amount'),
-                'unpaid' => Bill::where('status', 'Unpaid')->sum('amount'),
-                'overdue' => Bill::overdue()->sum('amount'),
-            ];
-        } elseif ($user->isResident()) {
-            return [
-                'total_bills' => $user->bills()->count(),
-                'paid' => $user->bills()->where('status', 'Paid')->sum('amount'),
-                'unpaid' => $user->bills()->where('status', 'Unpaid')->sum('amount'),
-                'overdue' => $user->bills()->overdue()->sum('amount'),
-            ];
+    private function statsFor($user): array
+    {
+        $query = ($user->isBillingStaff() || $user->isAdmin()) ? Bill::query() : $user->bills();
+
+        if (!$user->isBillingStaff() && !$user->isResident() && !$user->isAdmin()) {
+            return [];
         }
 
-        return null;
+        return [
+            'total_bills' => (clone $query)->count(),
+            'paid' => (clone $query)->where('status', 'Paid')->sum('amount'),
+            'unpaid' => (clone $query)->where('status', 'Unpaid')->sum('amount'),
+            'overdue' => (clone $query)->overdue()->sum('amount'),
+        ];
     }
 }

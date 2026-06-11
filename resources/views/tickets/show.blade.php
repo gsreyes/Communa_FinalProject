@@ -32,7 +32,7 @@
                 <div class="grid grid-cols-2 gap-6 mb-8 pb-8 border-b">
                     <div>
                         <p class="text-sm text-gray-600">Type</p>
-                        <p class="text-lg font-semibold">{{ $ticket->type }}</p>
+                        <p class="text-lg font-semibold">{{ ucfirst($ticket->type) }}</p>
                     </div>
                     <div>
                         <p class="text-sm text-gray-600">Category</p>
@@ -56,7 +56,7 @@
                     @if($ticket->attachment)
                         <div class="mt-4">
                             <a href="{{ asset('storage/' . $ticket->attachment) }}" class="text-blue-600 hover:text-blue-900">
-                                📎 Download Attachment
+                                Download Attachment
                             </a>
                         </div>
                     @endif
@@ -87,10 +87,15 @@
                                 </label>
                                 <select name="assigned_to" id="assigned_to" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
                                     <option value="">-- Unassigned --</option>
-                                    @foreach($ticket->assignedAdmin ? [$ticket->assignedAdmin] : [] as $admin)
-                                        <option value="{{ $admin->id }}" selected>{{ $admin->name }}</option>
+                                    @foreach($admins as $admin)
+                                        <option value="{{ $admin->id }}" {{ (int) $ticket->assigned_to === $admin->id ? 'selected' : '' }}>
+                                            {{ $admin->name }}
+                                        </option>
                                     @endforeach
                                 </select>
+                                @error('assigned_to')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div>
@@ -102,13 +107,19 @@
                                     <option value="Resolved" {{ $ticket->status === 'Resolved' ? 'selected' : '' }}>Resolved</option>
                                     <option value="Rejected" {{ $ticket->status === 'Rejected' ? 'selected' : '' }}>Rejected</option>
                                 </select>
+                                @error('status')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <div>
                                 <label for="admin_response" class="block text-sm font-medium text-gray-700 mb-2">
                                     Response
                                 </label>
-                                <textarea name="admin_response" id="admin_response" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg" required>{{ $ticket->admin_response }}</textarea>
+                                <textarea name="admin_response" id="admin_response" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg">{{ $ticket->admin_response }}</textarea>
+                                @error('admin_response')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                             <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium">

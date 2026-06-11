@@ -17,14 +17,17 @@
                 <!-- Filter Tabs -->
                 <div class="mb-6 border-b border-gray-200">
                     <nav class="flex space-x-8" aria-label="Tabs">
-                        <a href="{{ route('tickets.index') }}" class="py-2 px-1 border-b-2 font-medium text-sm border-blue-500 text-blue-600">
+                        <a href="{{ route('tickets.index') }}" class="py-2 px-1 border-b-2 font-medium text-sm {{ $status ? 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' : 'border-blue-500 text-blue-600' }}">
                             All
                         </a>
-                        <a href="{{ route('tickets.index', ['status' => 'Pending']) }}" class="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <a href="{{ route('tickets.index', ['status' => 'Pending']) }}" class="py-2 px-1 border-b-2 font-medium text-sm {{ $status === 'Pending' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             Pending
                         </a>
-                        <a href="{{ route('tickets.index', ['status' => 'Resolved']) }}" class="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <a href="{{ route('tickets.index', ['status' => 'Resolved']) }}" class="py-2 px-1 border-b-2 font-medium text-sm {{ $status === 'Resolved' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             Resolved
+                        </a>
+                        <a href="{{ route('tickets.index', ['status' => 'Rejected']) }}" class="py-2 px-1 border-b-2 font-medium text-sm {{ $status === 'Rejected' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                            Rejected
                         </a>
                     </nav>
                 </div>
@@ -47,8 +50,8 @@
                                 @foreach($tickets as $ticket)
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $ticket->type === 'Concern' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800' }}">
-                                                {{ $ticket->type }}
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $ticket->type === 'concern' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800' }}">
+                                                {{ ucfirst($ticket->type) }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-900">

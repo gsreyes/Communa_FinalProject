@@ -45,7 +45,7 @@
                     <!-- Amount -->
                     <div>
                         <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
-                            Amount (₱) <span class="text-red-500">*</span>
+                            Amount (PHP) <span class="text-red-500">*</span>
                         </label>
                         <input type="number" name="amount" id="amount" step="0.01" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-transparent" placeholder="0.00" required value="{{ old('amount') }}">
                         @error('amount')

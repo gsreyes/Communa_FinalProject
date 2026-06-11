@@ -10,16 +10,16 @@
                 <!-- Filter Tabs -->
                 <div class="mb-6 border-b border-gray-200">
                     <nav class="flex space-x-8" aria-label="Tabs">
-                        <a href="{{ route('payments.index') }}" class="py-2 px-1 border-b-2 font-medium text-sm border-blue-500 text-blue-600">
+                        <a href="{{ route('payments.index') }}" class="py-2 px-1 border-b-2 font-medium text-sm {{ $status ? 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' : 'border-blue-500 text-blue-600' }}">
                             All
                         </a>
-                        <a href="{{ route('payments.index', ['status' => 'completed']) }}" class="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <a href="{{ route('payments.index', ['status' => 'completed']) }}" class="py-2 px-1 border-b-2 font-medium text-sm {{ $status === 'completed' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             Completed
                         </a>
-                        <a href="{{ route('payments.index', ['status' => 'pending']) }}" class="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <a href="{{ route('payments.index', ['status' => 'pending']) }}" class="py-2 px-1 border-b-2 font-medium text-sm {{ $status === 'pending' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             Pending
                         </a>
-                        <a href="{{ route('payments.index', ['status' => 'failed']) }}" class="py-2 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <a href="{{ route('payments.index', ['status' => 'failed']) }}" class="py-2 px-1 border-b-2 font-medium text-sm {{ $status === 'failed' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             Failed
                         </a>
                     </nav>
@@ -60,7 +60,7 @@
                                             </td>
                                         @endif
                                         <td class="px-6 py-4 text-sm font-semibold text-gray-900">
-                                            ₱{{ number_format($payment->amount, 2) }}
+                                            PHP {{ number_format($payment->amount, 2) }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium

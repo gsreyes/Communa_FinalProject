@@ -17,11 +17,11 @@
                         </label>
                         <div class="grid grid-cols-2 gap-4">
                             <label class="relative flex items-center">
-                                <input type="radio" name="ticket_type" value="concern" class="mr-2" onchange="filterCategories('concern')">
+                                <input type="radio" name="ticket_type" value="concern" class="mr-2" onchange="filterCategories('concern')" {{ old('ticket_type') === 'concern' ? 'checked' : '' }}>
                                 <span class="text-sm">Concern/Complaint</span>
                             </label>
                             <label class="relative flex items-center">
-                                <input type="radio" name="ticket_type" value="request" class="mr-2" onchange="filterCategories('request')">
+                                <input type="radio" name="ticket_type" value="request" class="mr-2" onchange="filterCategories('request')" {{ old('ticket_type') === 'request' ? 'checked' : '' }}>
                                 <span class="text-sm">Request</span>
                             </label>
                         </div>
@@ -38,7 +38,7 @@
                         <select name="ticket_category_id" id="ticket_category_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-transparent" required>
                             <option value="">-- Select a category --</option>
                             @foreach($categories as $category)
-                                <option value="{{ $category->id }}" data-type="{{ $category->type }}" class="category-option-{{ $category->type }}">
+                                <option value="{{ $category->id }}" data-type="{{ $category->type }}" class="category-option-{{ $category->type }}" {{ (int) old('ticket_category_id') === $category->id ? 'selected' : '' }}>
                                     {{ $category->name }}
                                 </option>
                             @endforeach
@@ -49,19 +49,9 @@
                     </div>
 
                     <!-- Unit -->
-                    <div>
-                        <label for="unit_id" class="block text-sm font-medium text-gray-700 mb-2">
-                            Unit
-                        </label>
-                        <select name="unit_id" id="unit_id" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-transparent" required>
-                            <option value="">-- Select your unit --</option>
-                            @foreach($units as $unit)
-                                <option value="{{ $unit->id }}">{{ $unit->unit_number }}</option>
-                            @endforeach
-                        </select>
-                        @error('unit_id')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
+                    <div class="rounded-lg bg-gray-50 p-4">
+                        <p class="text-sm font-medium text-gray-700">Unit</p>
+                        <p class="mt-1 text-lg font-semibold text-gray-900">{{ $unit->unit_number }}</p>
                     </div>
 
                     <!-- Description -->
@@ -115,5 +105,13 @@ function filterCategories(type) {
         }
     });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const selectedType = document.querySelector('input[name="ticket_type"]:checked')?.value;
+
+    if (selectedType) {
+        filterCategories(selectedType);
+    }
+});
 </script>
 @endsection

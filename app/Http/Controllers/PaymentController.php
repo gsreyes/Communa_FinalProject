@@ -6,27 +6,31 @@ use App\Models\Bill;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Http;
 
 class PaymentController extends Controller
 {
     // Display payment history
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+        $status = $request->query('status');
 
-        if ($user->isBillingStaff()) {
-            $payments = Payment::with(['user', 'bill'])
-                ->latest()
-                ->paginate(20);
+        if ($user->isBillingStaff() || $user->isAdmin()) {
+            $query = Payment::with(['user', 'bill']);
         } else {
-            $payments = $user->payments()
-                ->with(['bill'])
-                ->latest()
-                ->paginate(20);
+            $query = $user->payments()->with(['bill']);
         }
 
-        return view('payments.index', compact('payments'));
+        if (in_array($status, ['pending', 'completed', 'failed', 'refunded'], true)) {
+            $query->where('status', $status);
+        }
+
+        $payments = $query->latest()
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('payments.index', compact('payments', 'status'));
     }
 
     // Show payment form for a specific bill
@@ -48,7 +52,7 @@ class PaymentController extends Controller
         $this->authorize('view', $bill);
 
         $validated = $request->validate([
-            'amount' => 'required|numeric|min:0.01|max:' . $bill->amount,
+            'amount' => 'required|numeric|min:0.01|max:' . ($bill->amount - ($bill->paid_amount ?? 0)),
         ]);
 
         try {
@@ -59,8 +63,7 @@ class PaymentController extends Controller
                 throw new \Exception('Failed to generate payment URL from HitPay');
             }
 
-            // Store payment record with pending status
-            $payment = Payment::create([
+            Payment::create([
                 'user_id' => Auth::id(),
                 'bill_id' => $bill->id,
                 'hitpay_transaction_id' => $hitpayResponse['id'] ?? '',
@@ -96,6 +99,11 @@ class PaymentController extends Controller
             return response('Payment not found', 404);
         }
 
+        // Skip if already processed
+        if ($payment->status === 'completed') {
+            return response('OK', 200);
+        }
+
         if ($status === 'completed') {
             $payment->update([
                 'status' => 'completed',
@@ -103,12 +111,18 @@ class PaymentController extends Controller
             ]);
 
             // Update bill status if full payment
-            if ($payment->amount >= $payment->bill->amount) {
+            $paidAmount = $payment->bill->payments()->completed()->sum('amount');
+
+            if ($paidAmount >= $payment->bill->amount) {
                 $payment->bill->update([
                     'status' => 'Paid',
-                    'paid_amount' => $payment->amount,
+                    'paid_amount' => $paidAmount,
                     'paid_at' => now(),
                     'reference_number' => $transactionId,
+                ]);
+            } else {
+                $payment->bill->update([
+                    'paid_amount' => $paidAmount,
                 ]);
             }
         } elseif ($status === 'failed') {
@@ -162,7 +176,7 @@ class PaymentController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->isBillingStaff()) {
+        if ($user->isBillingStaff() || $user->isAdmin()) {
             return [
                 'total_payments' => Payment::completed()->sum('amount'),
                 'total_transactions' => Payment::completed()->count(),
@@ -181,29 +195,32 @@ class PaymentController extends Controller
     // Create HitPay payment request
     private function createHitPayRequest(Bill $bill, $amount)
     {
-        $client = new Client();
-
         $payload = [
-            'amount' => $amount * 100, // HitPay expects amount in cents
+            'amount' => number_format((float) $amount, 2, '.', ''),
             'currency' => 'SGD',
             'email' => Auth::user()->email,
             'name' => Auth::user()->name,
-            'phone' => Auth::user()->phone ?? '',
             'reference_number' => 'BILL-' . $bill->id . '-' . uniqid(),
             'redirect_url' => route('payments.confirm'),
             'webhook' => route('payments.webhook'),
-            'method' => 'direct', // Allow all payment methods
         ];
 
-        $response = $client->post('https://api.sandbox.hit-pay.com/v1/payment_request', [
-            'headers' => [
-                'Authorization' => 'Bearer ' . env('HITPAY_API_KEY'),
-                'Content-Type' => 'application/json',
-            ],
-            'json' => $payload,
-        ]);
+        $response = Http::withToken((string) config('services.hitpay.api_key'))
+            ->acceptJson()
+            ->withOptions([
+                'proxy' => '',
+                'curl' => [
+                    CURLOPT_PROXY => '',
+                    CURLOPT_NOPROXY => '*',
+                ],
+            ])
+            ->post('https://api.sandbox.hit-pay.com/v1/payment-requests', $payload);
 
-        return json_decode($response->getBody(), true);
+        if ($response->failed()) {
+            throw new \Exception($response->json('message') ?? 'HitPay request failed.');
+        }
+
+        return $response->json();
     }
 
     //Verify HitPay webhook signature
@@ -216,7 +233,7 @@ class PaymentController extends Controller
         $computed = hash_hmac(
             'sha256',
             json_encode($payload, JSON_UNESCAPED_SLASHES),
-            env('HITPAY_API_SALT')
+            (string) config('services.hitpay.api_salt')
         );
 
         return hash_equals($signature, $computed);
