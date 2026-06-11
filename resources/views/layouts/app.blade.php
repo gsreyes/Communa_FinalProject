@@ -19,7 +19,9 @@
                     </a>
                     <div class="flex flex-wrap gap-2 text-sm font-medium">
                         <a href="{{ route('dashboard') }}" class="rounded-md px-3 py-2 {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">Dashboard</a>
-                        <a href="{{ route('tickets.index') }}" class="rounded-md px-3 py-2 {{ request()->routeIs('tickets.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">Tickets</a>
+                        @if(auth()->user()->isResident() || auth()->user()->isAdmin())
+                            <a href="{{ route('tickets.index') }}" class="rounded-md px-3 py-2 {{ request()->routeIs('tickets.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">Tickets</a>
+                        @endif
                         @if(auth()->user()->isAdmin())
                             <a href="{{ route('users.index') }}" class="rounded-md px-3 py-2 {{ request()->routeIs('users.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">Users</a>
                             <a href="{{ route('units.index') }}" class="rounded-md px-3 py-2 {{ request()->routeIs('units.*') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' }}">Units</a>

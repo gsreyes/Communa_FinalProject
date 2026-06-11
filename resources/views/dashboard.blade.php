@@ -29,10 +29,12 @@
         </div>
 
         <div class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-            <a href="{{ route('tickets.index') }}" class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm hover:border-blue-300 hover:shadow">
-                <p class="font-semibold text-gray-900">Tickets</p>
-                <p class="mt-1 text-sm text-gray-600">Review requests and concerns.</p>
-            </a>
+            @if(auth()->user()->isResident() || auth()->user()->isAdmin())
+                <a href="{{ route('tickets.index') }}" class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm hover:border-blue-300 hover:shadow">
+                    <p class="font-semibold text-gray-900">Tickets</p>
+                    <p class="mt-1 text-sm text-gray-600">Review requests and concerns.</p>
+                </a>
+            @endif
             @if(auth()->user()->isResident() || auth()->user()->isBillingStaff())
                 <a href="{{ route('bills.index') }}" class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm hover:border-blue-300 hover:shadow">
                     <p class="font-semibold text-gray-900">Bills</p>

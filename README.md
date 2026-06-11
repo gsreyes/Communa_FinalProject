@@ -23,3 +23,9 @@ Communa is built with:
    - npm install
    - npm run build
    - php artisan serve
+
+
+7. HitPay Setup:
+    - Create a HitPay SandBox account (guide here:https://docs.hitpayapp.com/apis/guide/sandbox)
+    - Create a Ngrok account (guide here: https://ngrok.com/download/windows?tab=install_winget)
+    - Setup your environment file using the API keys, URLs, and webhook

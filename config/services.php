@@ -39,6 +39,15 @@ return [
         'api_key' => env('HITPAY_API_KEY'),
         'api_salt' => env('HITPAY_API_SALT'),
         'sandbox' => env('HITPAY_SANDBOX', true),
+        'currency' => env('HITPAY_CURRENCY', 'PHP'),
+        'verify_ssl' => env('HITPAY_VERIFY_SSL', true),
+        'verify_webhook' => env('HITPAY_VERIFY_WEBHOOK', true),
+        'api_url' => env(
+            'HITPAY_API_URL',
+            env('HITPAY_SANDBOX', true)
+                ? 'https://api.sandbox.hit-pay.com/v1'
+                : 'https://api.hit-pay.com/v1'
+        ),
     ],
 
 ];
