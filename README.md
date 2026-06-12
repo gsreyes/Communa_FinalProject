@@ -21,11 +21,12 @@ Communa is built with:
    - php artisan migrate
    - php artisan db:seed (to login as an admin)
    - npm install
-   - npm run build
+   - npm run dev
    - php artisan serve
 
 
 7. Payment Gateway Setup (via HitPay Sandbox):
     - Create a HitPay SandBox account (guide here:https://docs.hitpayapp.com/apis/guide/sandbox)
     - Create a Ngrok account (guide here: https://ngrok.com/download/windows?tab=install_winget)
-    - Setup your environment file using the API keys, URLs, and webhook
+    - Setup your environment file using the URLs and API keys generated on HitPay Sandbox and Ngrok temporary URL
+    - Add the Ngrok temporary URL + route path (/webhook/hitpay) in the HitPay Sandbox webhook
