@@ -3,7 +3,7 @@
 ## About
 Communa is built with:
 - Laravel 13
-- PHP 8.x.
+- PHP 8.3^.
 - Blade
 - Breeze
 - Tailwind CSS
@@ -25,7 +25,7 @@ Communa is built with:
    - php artisan serve
 
 
-7. HitPay Setup:
+7. Payment Gateway Setup (via HitPay Sandbox):
     - Create a HitPay SandBox account (guide here:https://docs.hitpayapp.com/apis/guide/sandbox)
     - Create a Ngrok account (guide here: https://ngrok.com/download/windows?tab=install_winget)
     - Setup your environment file using the API keys, URLs, and webhook
